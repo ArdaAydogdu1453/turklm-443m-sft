@@ -3,11 +3,53 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-green.svg)](requirements.txt)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.1%2B-orange.svg)](https://pytorch.org/)
-[![Hardware](https://img.shields.io/badge/Hardware-NVIDIA_A100_%7C_L4_%7C_T4-red.svg)](#hardware-profiles)
+[![Hardware](https://img.shields.io/badge/Hardware-NVIDIA_A100-red.svg)](#model-architecture)
+[![HuggingFace](https://img.shields.io/badge/HuggingFace-ArdaAydogdu%2Fturklm--443m--sft-yellow.svg)](https://huggingface.co/ArdaAydogdu/turklm-443m-sft)
+[![Parameters](https://img.shields.io/badge/Parameters-443M-purple.svg)](#model-architecture)
 
-TURKLM is an open-source Turkish language model built around a 443M parameter LLaMA-style decoder-only Transformer. The model was trained from scratch on NVIDIA A100 GPUs using PyTorch and Hugging Face Transformers.
+TURKLM is an open-source Turkish language model built around a 443M parameter LLaMA-style decoder-only Transformer. The model was trained **from scratch** on a single NVIDIA A100 GPU using PyTorch and Hugging Face Transformers — no pretrained weights, no LoRA, no distillation.
 
 This repository documents the complete training system, failure post-mortems, and actual measured metrics without fabricated benchmark numbers.
+
+---
+
+## Model Weights
+
+Pre-trained weights are available on Hugging Face:
+
+**[ArdaAydogdu/turklm-443m-sft](https://huggingface.co/ArdaAydogdu/turklm-443m-sft)**
+
+```python
+from transformers import AutoTokenizer, AutoModelForCausalLM
+import torch
+
+model_id = "ArdaAydogdu/turklm-443m-sft"
+
+tokenizer = AutoTokenizer.from_pretrained(model_id)
+model = AutoModelForCausalLM.from_pretrained(
+    model_id,
+    torch_dtype=torch.bfloat16,
+    device_map="auto"
+)
+model.eval()
+
+prompt = "### Kullanıcı:\nTürkiye'nin başkenti neresi?\n### Asistan:\n"
+inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+
+with torch.no_grad():
+    output = model.generate(
+        **inputs,
+        max_new_tokens=128,
+        do_sample=True,
+        temperature=0.7,
+        top_p=0.9,
+        repetition_penalty=1.1
+    )
+
+print(tokenizer.decode(output[0], skip_special_tokens=True))
+```
+
+> Quantized versions (INT8, GGUF Q4_K_M) are also available in the same HuggingFace repository.
 
 ---
 
