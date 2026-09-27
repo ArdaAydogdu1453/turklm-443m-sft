@@ -13,43 +13,85 @@ This repository documents the complete training system, failure post-mortems, an
 
 ---
 
-## Model Weights
+## Model Weights & Formats
 
-Pre-trained weights are available on Hugging Face:
+Pre-trained model checkpoints and quantized formats are hosted on Hugging Face:  
+👉 **[huggingface.co/ArdaAydogdu/turklm-443m-sft](https://huggingface.co/ArdaAydogdu/turklm-443m-sft)**
 
-**[ArdaAydogdu/turklm-443m-sft](https://huggingface.co/ArdaAydogdu/turklm-443m-sft)**
+| Format | File / Path | Size | Target Hardware | Recommended Runtime |
+|---|---|---|---|---|
+| **BF16 / FP16** | `model.safetensors` | **886 MB** | ~2GB GPU VRAM | PyTorch, Hugging Face Transformers |
+| **GGUF Q4_K_M** | `turklm-443m-sft-Q4_K_M.gguf` | **283 MB** | **500MB RAM (CPU-only)** | **Ollama, LM Studio, llama.cpp, edge** |
+| **INT4 NF4** | `int4-nf4/` | **326 MB** | ~1GB GPU VRAM | `bitsandbytes` 4-bit (RTX 3050, T4 Colab) |
+| **INT8** | `int8/` | **510 MB** | ~1.5GB GPU VRAM | `bitsandbytes` 8-bit |
+
+---
+
+### Quickstart 1: Hugging Face Transformers (Standard BF16)
 
 ```python
-from transformers import AutoTokenizer, AutoModelForCausalLM
 import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer, TextStreamer
 
 model_id = "ArdaAydogdu/turklm-443m-sft"
 
 tokenizer = AutoTokenizer.from_pretrained(model_id)
-model = AutoModelForCausalLM.from_pretrained(
-    model_id,
-    torch_dtype=torch.bfloat16,
-    device_map="auto"
-)
+model = AutoModelForCausalLM.from_pretrained(model_id, torch_dtype=torch.bfloat16, device_map="auto")
 model.eval()
 
 prompt = "### Kullanıcı:\nTürkiye'nin başkenti neresi?\n### Asistan:\n"
 inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+streamer = TextStreamer(tokenizer, skip_prompt=True, skip_special_tokens=True)
 
 with torch.no_grad():
     output = model.generate(
         **inputs,
+        streamer=streamer,
         max_new_tokens=128,
         do_sample=True,
         temperature=0.7,
         top_p=0.9,
-        repetition_penalty=1.1
+        repetition_penalty=1.15
     )
-
-print(tokenizer.decode(output[0], skip_special_tokens=True))
 ```
 
-> Quantized versions (INT8, GGUF Q4_K_M) are also available in the same HuggingFace repository.
+---
+
+### Quickstart 2: 4-Bit NF4 (Low VRAM / 2GB - 4GB GPUs)
+
+```python
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+
+model_id = "ArdaAydogdu/turklm-443m-sft"
+bnb_config = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_compute_dtype=torch.bfloat16,
+    bnb_4bit_use_double_quant=True,
+    bnb_4bit_quant_type="nf4"
+)
+
+tokenizer = AutoTokenizer.from_pretrained(model_id)
+model = AutoModelForCausalLM.from_pretrained(model_id, quantization_config=bnb_config, device_map="auto")
+
+prompt = "### Kullanıcı:\nGüneş Sistemi'nin en büyük gezegeni hangisidir?\n### Asistan:\n"
+inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+tokens = model.generate(**inputs, max_new_tokens=100, temperature=0.7)
+print(tokenizer.decode(tokens[0], skip_special_tokens=True))
+```
+
+---
+
+### Quickstart 3: GGUF & Ollama / LM Studio (CPU Execution)
+
+```bash
+# 1. Download GGUF binary (283 MB)
+huggingface-cli download ArdaAydogdu/turklm-443m-sft turklm-443m-sft-Q4_K_M.gguf --local-dir .
+
+# 2. Run with llama-cpp-python:
+pip install llama-cpp-python
+python -c "from llama_cpp import Llama; llm = Llama(model_path='turklm-443m-sft-Q4_K_M.gguf'); print(llm('### Kullanıcı:\nPython nedir?\n### Asistan:\n', max_tokens=128)['choices'][0]['text'])"
+```
 
 ---
 
