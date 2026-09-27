@@ -3,9 +3,9 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-green.svg)](requirements.txt)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.1%2B-orange.svg)](https://pytorch.org/)
-[![Hardware](https://img.shields.io/badge/Hardware-NVIDIA_A100-red.svg)](#model-architecture)
+[![Hardware](https://img.shields.io/badge/Hardware-NVIDIA_A100-red.svg)](https://huggingface.co/ArdaAydogdu/turklm-443m-sft)
 [![HuggingFace](https://img.shields.io/badge/HuggingFace-ArdaAydogdu%2Fturklm--443m--sft-yellow.svg)](https://huggingface.co/ArdaAydogdu/turklm-443m-sft)
-[![Parameters](https://img.shields.io/badge/Parameters-443M-purple.svg)](#model-architecture)
+[![Parameters](https://img.shields.io/badge/Parameters-443M-purple.svg)](https://huggingface.co/ArdaAydogdu/turklm-443m-sft)
 
 TURKLM is an open-source Turkish language model built around a 443M parameter LLaMA-style decoder-only Transformer. The model was trained **from scratch** on a single NVIDIA A100 GPU using PyTorch and Hugging Face Transformers — no pretrained weights, no LoRA, no distillation.
 
