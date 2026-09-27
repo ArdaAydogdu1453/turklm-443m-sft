@@ -1,0 +1,43 @@
+{
+  "run_name": "turklm_v10.2_sft_fix_a100_high_d401853a664e8a6b",
+  "stage": "supervised_fine_tuning",
+  "base_model": "final_turklm_v10.0_turbo_a100_high_0a29822b0f1a5b78",
+  "dataset_info": {
+    "version": "merve_plus_alpaca_103k",
+    "sources": [
+      "merve/turkish_instructions (51,563 samples)",
+      "TFLai/Turkish-Alpaca (51,914 samples)"
+    ],
+    "total_samples": 103477,
+    "train_eval_split": "97% train / 3% eval",
+    "prompt_masking": "Assistant-only loss masking (-100 on user tokens)"
+  },
+  "training_metrics": {
+    "num_train_epochs": 3,
+    "total_optimization_steps": 2457,
+    "eval_loss": 2.82,
+    "perplexity": 16.78,
+    "learning_rate": 0.0001,
+    "warmup_ratio": 0.05,
+    "lr_scheduler": "cosine",
+    "effective_batch_size": 120,
+    "micro_batch_size": 40,
+    "gradient_accumulation_steps": 3,
+    "context_length": 1024,
+    "precision": "bfloat16"
+  },
+  "comparison_with_v10_1_failure": {
+    "v10.1_failure_eval_loss": 3.488,
+    "v10.1_failure_perplexity": 32.74,
+    "improvement_eval_loss": "-0.668 (significant drop)",
+    "improvement_perplexity": "-15.96 (perplexity halved)",
+    "root_cause_fix": "Increased LR from 2e-5 to 1e-4, extended to 3 epochs, fixed dataset normalization"
+  },
+  "hardware_environment": {
+    "gpu_name": "NVIDIA A100-SXM4-80GB",
+    "cuda_version": "12.8",
+    "active_backend": "sdpa",
+    "liger_kernel_active": true
+  },
+  "status": "COMPLETED_SUCCESSFUL"
+}

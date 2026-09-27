@@ -1,0 +1,13 @@
+torch>=2.1.0
+transformers>=4.40.0
+datasets>=2.18.0
+accelerate>=0.28.0
+tokenizers>=0.15.0
+sentencepiece>=0.1.99
+numpy>=1.24.0
+tqdm>=4.66.0
+psutil>=5.9.0
+
+# Optional Performance Boosters
+# Install liger-kernel for fused operations: pip install liger-kernel
+liger-kernel>=0.1.0

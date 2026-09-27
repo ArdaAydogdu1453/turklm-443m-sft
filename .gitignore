@@ -1,0 +1,41 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Checkpoints, Model weights and large binaries
+ckpt_*/
+final_*/
+*.bin
+*.safetensors
+*.pt
+*.pth
+*.onnx
+*.msgpack
+
+# Workspace, caches and outputs
+drive_turklm/
+local_workspace/
+hf_cache/
+logs_*/
+logs/
+wandb/
+.system_generated/
+
+# Environments & virtualenvs
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# OS specific files
+.DS_Store
+Thumbs.db
+desktop.ini
